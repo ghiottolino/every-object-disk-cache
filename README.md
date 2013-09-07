@@ -22,6 +22,7 @@ To put a serializable object to the cache, call `cache.put(key, serializableObje
 ##### Example
 
 <code>
+
 @EBean(scope = Scope.Singleton)
 public class CacheAwareTodoServiceImpl implements TodoService {
 
@@ -33,7 +34,7 @@ public class CacheAwareTodoServiceImpl implements TodoService {
     @RootContext
     Context context;
 
-    @Bean(BroadcastServiceImpl.class)
+    @Bean(TodoServiceImpl.class)
     TodoService todoService; //Inject it
 
     @AfterInject
