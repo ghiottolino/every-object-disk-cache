@@ -21,7 +21,11 @@ To put a serializable object to the cache, call `cache.put(key, serializableObje
 
 ##### Example
 
-<code>
+The following example use [Android Annotations] (http://androidannotations.org/) for avoiding some Android specific boiler code. The Android Annotations framework is not necessary for using EveryObjectDiskCache.
+
+<pre><code>
+
+// EveryObjectDiskCache simple example
 
 @EBean(scope = Scope.Singleton)
 public class CacheAwareTodoServiceImpl implements TodoService {
@@ -85,5 +89,5 @@ public class CacheAwareTodoServiceImpl implements TodoService {
     ...
 }
 
-</code>
+</code></pre>
 
