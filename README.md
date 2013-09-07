@@ -21,4 +21,68 @@ To put a serializable object to the cache, call `cache.put(key, serializableObje
 
 ##### Example
 
+<code>
+@EBean(scope = Scope.Singleton)
+public class CacheAwareTodoServiceImpl implements TodoService {
+
+    private final int appVersion = 1;
+    private File cacheDir;
+
+    private EveryObjectDiskCache cache;
+
+    @RootContext
+    Context context;
+
+    @Bean(BroadcastServiceImpl.class)
+    TodoService todoService; //Inject it
+
+    @AfterInject
+    void initCache() {
+        cacheDir = context.getCacheDir();
+        try{
+            //INITIALIZE FROM CACHE
+            cache = EveryObjectDiskCache.open(cacheDir, appVersion, Integer.MAX_VALUE);
+        } catch (IOException e) {
+ 	    // do exception handling
+        }
+    }
+
+    @Override
+    public List<Todo> getTodos(String username) {
+
+        List<Todo> todos = new ArrayList<Todo>();
+        try {
+            String cacheKey = generateKey(username);
+
+            //READ FROM CACHE
+            EveryObjectDiskCache.ObjectEntry cachedObjectEntry = cache.getObjectEntry(cacheKey);
+
+
+            if (cachedObjectEntry==null){
+               todos = todoService.getTodos(username);
+               //wrap List<Todo> in a TodoList objects, so that it is serializable
+               TodoList todoList = new TodoList();
+               todoList.setTodos(todos);
+               //empty metadata object, to be used in the future for storing things like caching date
+               Map<String,String> metadata = new HashMap<String, String>();
+             
+               //WRITE TO CACHE
+               cache.put(cacheKey,todoList,metadata);
+
+ 	       //READ FROM CACHE
+               cachedObjectEntry = cache.getObjectEntry(cacheKey);
+            }
+            TodoList todoList = (TodoList) cachedObjectEntry.getObject();
+            todos = todoList.getTodos();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return todos;
+    }
+
+    ...
+}
+
+</code>
 
